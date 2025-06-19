@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Student;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class StudentController extends Controller
 {
@@ -27,20 +28,26 @@ class StudentController extends Controller
  /**
   * Store a newly created resource in storage.
   */
- public function store(Request $request)
+ public function store(Request $request): JsonResponse
  {
-  $validated = $request->validate([
-   'name'       => 'required|string',
-   'email'      => 'required|email|unique:students',
-   'department' => 'required|string',
+
+  $request->validate([
+   'name'       => 'required|string|max:255',
+   'email'      => 'required|email|unique:students,email',
+   'department' => 'required|string|max:255',
   ]);
 
-  $student = Student::create($validated);
+  $student = Student::create([
+   'name'       => $request->name,
+   'email'      => $request->email,
+   'department' => $request->department,
+  ]);
 
   return response()->json([
    'message' => 'Student created successfully',
-   'student' => $student,
+   'data'    => $student,
   ], 201);
+
  }
 
  /**
